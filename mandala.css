@@ -5,14 +5,6 @@ canvas{
 	left: 52vw;
 }
 
-#objects{
-	background-color: #C2C5C2;
-	overflow-y: scroll;
-	height: 64vh;
-	width: 45vw;
-	float: left;
-}
-
 .menuFix{
 	border: 1.5px solid red;
 	width: 45vw;
@@ -38,8 +30,16 @@ input{
 	width: 45vw;
 }
 
+#objects{
+	background-color: #C2C5C2;
+	overflow-y: scroll;
+	height: 64vh;
+	width: 45vw;
+	float: left;
+}
+
 #delete_copy{
-	position: fixed;
+	position: absolute;
 	left: 30vw;
 }
 
