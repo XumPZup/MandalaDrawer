@@ -37,3 +37,7 @@ input{
 	float: left;
 	width: 45vw;
 }
+
+#delete_copy{
+	position: fixed;
+}
