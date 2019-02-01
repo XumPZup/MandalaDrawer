@@ -1,0 +1,247 @@
+<html>
+<style>
+
+canvas{
+	position:absolute;
+	width: 700px;
+	height: 700px;
+	left: 52vw;
+}
+
+#objects{
+	background-color: #C2C5C2;
+	overflow-y: scroll;
+	height: 64vh;
+	width: 45vw;
+	float: left;
+}
+
+.menuFix{
+	border: 1.5px solid red;
+	width: 45vw;
+}
+
+#menu, #decorations{
+	border: 1.5px solid red;
+	width: 45vw;
+	display: none; 
+	column-count: 3;
+}
+
+input{
+	width: 60px;
+}
+
+.on{
+	background-color: #fa12aa;
+}
+
+#styleMenu{
+	float: left;
+	width: 45vw;
+}
+</style>
+<head>
+</head>
+<body>
+<canvas id='canvas'></canvas>
+<div class='menuFix' id='adders'>
+	<label>Toggle Lines</label>
+	<input id='lines' type='checkbox'>
+	<button id='ring'>Add Circle</button>
+	<button id='ringPattern'>Add Circle Pattern</button>
+	<button id='petalsPattern'>Add Petals Pattern</button>
+	<button id='linesPattern'>Add Lines Pattern</button>
+	<button id='trianglesPattern'>Add Triangles Pattern</button>
+	<button id='spyralsPattern'>Add Spyrals Pattern</button>
+	<button id='preMadePetalsPattern'>Add Pre Made Petals</button>
+	<button id='preMadePetalsPattern2'>Add Pre Made Petals 2</button>
+	<button id='preMadePetalsPattern3'>Add Pre Made Petals 3</button>
+</div>
+
+<p id='title'></p><label>Show/Hide Decorations Menu</label><input id='toggleDecorations' type='checkbox'/>
+<div id='menu'>
+	<div class='menuInput' id='radius'>
+		<label>Radius</label>
+		<input type='number'/>
+	</div>
+	
+	<div class='menuInput' id='center'>
+		<label>Center</label>
+		<input type='number'/>
+	</div>
+	
+	<div class='menuInput' id='height'>
+		<label>Height</label>
+		<input type='number'/>
+	</div>
+	
+	<div class='menuInput' id='width'>
+		<label>Width</label>
+		<input type='number'/>
+	</div>
+	
+	<div class='menuInput' id='length'>
+		<label>Length</label>
+		<input type='number'/>
+	</div>
+	
+	<div class='menuInput' id='completeness'>
+		<label>Completeness</label>
+		<input type='number' max='1' step='0.01'/>
+	</div>
+	<div class='menuInput' id='quantity'>
+		<label>Quantity</label>
+		<input type='number' step='0.25' min='0'/>
+	</div>
+	<div class='menuInput' id='orientation'>
+		<label>Orientation</label>
+		<input type='number' max='0.25' min='-0.25' step='0.01'/>
+	</div>
+	<div class='menuInput' id='proximity'>
+		<label>Proximity</label>
+		<input type='number' step='0.01'/>
+	</div>
+	<!--Differenziare -->
+	<div class='menuInput' id='rotation'>
+		<label>Rotation</label>
+		<input type='number' step='0.01'/>
+	</div>
+	
+	<div class='menuInput' id='rotation1'>
+		<label>Rotation1</label>
+		<input type='number' step='0.01'/>
+	</div>
+	<div class='menuInput' id='rotation2'>
+		<label>Rotation2</label>
+		<input type='number' step='0.01'/>
+	</div>
+	<!--------------------------------->
+	<div class='menuInput' id='angle'>
+		<label>Angle</label>
+		<input type='number' step='0.01'/>
+	</div>
+	
+	<div class='menuInput' id='loops'>
+		<label>Loops</label>
+		<input type='number' step='1'/>
+	</div>
+	
+	<div class='menuInput' id='lineWidth'>
+		<label>LineWidth</label>
+		<input type='number' min='1'/>
+	</div>
+	
+	<div class='menuInput' id='lineColor'>
+		<label>LineColor</label>
+		<input type='text' />
+	</div>
+	
+	<!--Decoration activation-->
+	<div class='menuInput' id='specularCopy'>
+		<label>Specular Copy</label>
+		<input type='number' min='0' max='1'/>
+	</div>
+	
+	<div class='menuInput' id='circlesOnTheSides'>
+		<label>Circles On The Sides</label>
+		<input type='number' min='0' max='1'/>
+	</div>
+	
+	<div class='menuInput' id='topCircle'>
+		<label>Top Circle</label>
+		<input type='number' min='0' max='1'/>
+	</div>
+	
+	<div class='menuInput' id='fill'>
+		<label>Fill Circle</label>
+		<input type='number' min='0' max='1'/>
+	</div>
+	
+	<div class='menuInput' id='circlesAround'>
+		<label>Circles Around</label>
+		<input type='number' min='0' max='1'/>
+	</div>
+</div>	
+
+<!--Decoration inputs-->
+<div id='decorations'>
+	<div class='menuInput' id='circlesRadius'>
+		<label>Circles Radius</label>
+		<input type='number' />
+	</div>
+		
+	<div class='menuInput' id='circlesDistance'>
+		<label>Circles Distance</label>
+		<input type='number' />
+	</div>
+	
+	<div class='menuInput' id='circlesGap'>
+		<label>Circles Gap</label>
+		<input type='number' step='0.01'/>
+	</div>
+	
+	<div class='menuInput' id='start'>
+		<label>Loop Start</label>
+		<input type='number' />
+	</div>
+		
+	<div class='menuInput' id='stop'>
+		<label>Loop Stop</label>
+		<input type='number' />
+	</div>
+		
+	<div class='menuInput' id='topCircleRadius'>
+		<label>Top Circle Radius</label>
+		<input type='number' />
+	</div>
+	
+	<div class='menuInput' id='topCircleDistance'>
+		<label>Top Circle Distance</label>
+		<input type='number' />
+	</div>
+				
+	<!--Fills-->
+	<div class='menuInput' id='fillTopCircle'>
+		<label>Top Circle Fill</label>
+		<input type='number' min='0' max='1'/>
+	</div>
+	
+	<div class='menuInput' id='fillCircles'>
+		<label>Fill Circles</label>
+		<input type='number' min='0' max='1'/>
+	</div>
+	<!--Color-->
+	<div class='menuInput' id='circlesColor'>
+		<label>Circles Color</label>
+		<input type='text'/>
+	</div>
+		
+	<div class='menuInput' id='topCircleColor'>
+		<label>Top Circle Color</label>
+		<input type='text'/>
+	</div>
+	<!--Width-->
+	<div class='menuInput' id='circlesLineWidth'>
+		<label>Circles LineWidth</label>
+		<input type='number'/>
+	</div>
+		
+	<div class='menuInput' id='topCircleLineWidth'>
+		<label>Top Circle LineWidth</label>
+		<input type='number'/>
+	</div>
+		
+</div>
+	
+
+
+</br>
+<div id='objects'>
+	<button id='delete'>Delete</button>
+	<button id='copy'>Copy</button>
+</div>
+
+<script src='mandala.js'></script>
+</body>
+</html>
