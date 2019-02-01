@@ -17,13 +17,16 @@ var addSpyralsPatternBtn = document.getElementById('spyralsPattern');
 var addPreMadePetalsBtn = document.getElementById('preMadePetalsPattern');
 var addPreMadePetals2Btn = document.getElementById('preMadePetalsPattern2');
 var addPreMadePetals3Btn = document.getElementById('preMadePetalsPattern3');
+//
 var deleteBtn = document.getElementById('delete');
 var copyBtn = document.getElementById('copy');
 var lineToggle = document.getElementById('lines');
 var decorationMenuToggle = document.getElementById('toggleDecorations');
+var setBackgroundBtn = document.getElementById('setBackground');
+var background_adapt = document.getElementById('background_adapt');
+var setMainColorBtn = document.getElementById('setMainColor');
 
-
-// - Bttuons Event Listeners
+// - Bttuons[adders] Event Listeners
 addCircle.addEventListener('click', addRing);
 addCirclePattern.addEventListener('click', addRingPattern);
 addPetalsPatternBtn.addEventListener('click', addPetalsPattern);
@@ -39,10 +42,8 @@ lineToggle.addEventListener('click', toggleLines);
 decorationMenuToggle.addEventListener('click', toggleDecorations);
 deleteBtn.addEventListener('click', deleteObj);
 copyBtn.addEventListener('click', copyObj);
-
-
-// - Inputs div
-var menu = document.getElementById('menu');
+setBackgroundBtn.addEventListener('click', setBackground);
+setMainColorBtn.addEventListener('click', setMainColor);
 
 // - List div
 var objectList = document.getElementById('objects');
@@ -53,6 +54,10 @@ for(var i = 0; i < inputsDiv.length; i++){
 	input = inputsDiv[i].getElementsByTagName('input')[0];
 	input.addEventListener('change', editObject);
 }
+
+// - Others inputs
+backgroundInput = document.getElementById('background');
+mainColorInput = document.getElementById('mainColor');
 
 
 var mainColor = '#000000';
@@ -1136,12 +1141,21 @@ function editObject(){
 //
 //
 //
-function setBackground(src){
+function setBackground(){
 	img = new Image();
-	img.src = src;
+	img.src = backgroundInput.value;
 	img.onload = function(){
 		background = img;
 		draw();
+	}
+}
+
+function setMainColor(){
+	if(mainColorInput.value.length == 7 && mainColorInput.value[0] == '#'){
+		mainColor = mainColorInput.value;
+		for(var i = 0; i < objs.length; i++){
+			objs[i].lineColor = mainColor;
+		}
 	}
 }
 
@@ -1149,7 +1163,12 @@ function setBackground(src){
 function draw(){
 	ctx.clearRect(0,0,d,d);
 	if(background){
-		ctx.drawImage(background,0,0);
+		if(background_adapt.checked){
+			ctx.drawImage(background,0,0,d,d);
+		}
+		else{
+			ctx.drawImage(background,0,0);
+		}
 	}
 	if(showLines){
 		lines();

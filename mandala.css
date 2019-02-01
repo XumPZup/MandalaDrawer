@@ -42,3 +42,8 @@ input{
 	position: fixed;
 	left: 30vw;
 }
+
+#lastMenu{
+	border: 1.5px solid red;
+	width: 45vw;
+}
