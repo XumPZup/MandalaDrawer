@@ -1,50 +1,13 @@
 <html>
-<style>
-
-canvas{
-	position:absolute;
-	width: 700px;
-	height: 700px;
-	left: 52vw;
-}
-
-#objects{
-	background-color: #C2C5C2;
-	overflow-y: scroll;
-	height: 64vh;
-	width: 45vw;
-	float: left;
-}
-
-.menuFix{
-	border: 1.5px solid red;
-	width: 45vw;
-}
-
-#menu, #decorations{
-	border: 1.5px solid red;
-	width: 45vw;
-	display: none; 
-	column-count: 3;
-}
-
-input{
-	width: 60px;
-}
-
-.on{
-	background-color: #fa12aa;
-}
-
-#styleMenu{
-	float: left;
-	width: 45vw;
-}
-</style>
 <head>
+	<link rel="stylesheet" type="text/css" href="mandala.css">
+	<title>Mandala Drawer</title>
 </head>
+
 <body>
+
 <canvas id='canvas'></canvas>
+
 <div class='menuFix' id='adders'>
 	<label>Toggle Lines</label>
 	<input id='lines' type='checkbox'>
