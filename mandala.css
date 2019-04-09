@@ -1,49 +1,125 @@
-canvas{
-	position:absolute;
+/* ------------------------------------------------------ */
+ .switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 16px;
+  float:right;
+}
+
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 11px;
+  width: 11px;
+  left: 2px;
+  bottom: 3px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+}
+
+input:checked + .slider {
+  background-color: #2196F3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+/* -------------------------------------------------------- */
+/* -------------------------------------------------------- */
+/* -------------------------------------------------------- */
+
+#canvas{
 	width: 700px;
 	height: 700px;
-	left: 52vw;
 }
 
-.menuFix{
-	border: 1.5px solid red;
-	width: 45vw;
+.CirclesOnTheSidesDecoration, .TopCircleDecoration{
+	display: none;
+	background-color:#ffe08c;
 }
 
-#menu, #decorations{
-	border: 1.5px solid red;
-	width: 45vw;
-	display: none; 
-	column-count: 3;
-}
-
-input{
-	width: 60px;
-}
-
-.on{
-	background-color: #fa12aa;
-}
-
-#styleMenu{
+#menu{
+	background-color: #fdff8e;
+	width: 20vw;
 	float: left;
-	width: 45vw;
+	border: 1.5px solid red;
+	column-count: 1;
+}
+
+#menu input{
+	width: 60px;
 }
 
 #objects{
 	background-color: #C2C5C2;
 	overflow-y: scroll;
 	height: 64vh;
-	width: 45vw;
-	float: left;
+	width: 23vw;
+	float: right;
 }
 
-#delete_copy{
-	position: absolute;
-	left: 30vw;
+#backgroundOptions{
+	background-color:#f9ba90;
 }
 
-#lastMenu{
-	border: 1.5px solid red;
-	width: 45vw;
+.on{
+	background-color: #fa12aa;
+}
+
+#objects-info{
+	width: 23vw;
+	float: right;
+}
+
+#info{
+	background-color: #fa12aa;
+}
+
+.key{
+	color: #ffffff;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; 
+}
+
+.command{
+	color: #baffaa;
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; 
+}
+
+ul {
+	list-style-type: none;
 }

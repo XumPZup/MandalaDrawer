@@ -5,59 +5,46 @@ var canvasCenter = d/2;
 ctx.canvas.width = d;
 ctx.canvas.height = d;
 
-//
-//
-// - Buttons
-var addCircle = document.getElementById('ring');
-var addCirclePattern = document.getElementById('ringPattern');
-var addPetalsPatternBtn = document.getElementById('petalsPattern');
-var addLinesPatternBtn = document.getElementById('linesPattern');
-var addTrianglesPatternBtn = document.getElementById('trianglesPattern');
-var addSpyralsPatternBtn = document.getElementById('spyralsPattern');
-var addPreMadePetalsBtn = document.getElementById('preMadePetalsPattern');
-var addPreMadePetals2Btn = document.getElementById('preMadePetalsPattern2');
-var addPreMadePetals3Btn = document.getElementById('preMadePetalsPattern3');
-//
+// - Delete Copy
 var deleteBtn = document.getElementById('delete');
 var copyBtn = document.getElementById('copy');
-var lineToggle = document.getElementById('lines');
-var decorationMenuToggle = document.getElementById('toggleDecorations');
-var setBackgroundBtn = document.getElementById('setBackground');
-var background_adapt = document.getElementById('background_adapt');
-var setMainColorBtn = document.getElementById('setMainColor');
-
-// - Bttuons[adders] Event Listeners
-addCircle.addEventListener('click', addRing);
-addCirclePattern.addEventListener('click', addRingPattern);
-addPetalsPatternBtn.addEventListener('click', addPetalsPattern);
-addLinesPatternBtn.addEventListener('click', addLinesPattern);
-addTrianglesPatternBtn.addEventListener('click', addTrianglesPattern);
-addSpyralsPatternBtn.addEventListener('click', addSpyralsPattern);
-addPreMadePetalsBtn.addEventListener('click', addPreMadePetalsPattern);
-addPreMadePetals2Btn.addEventListener('click', addPreMadePetalsPattern2);
-addPreMadePetals3Btn.addEventListener('click', addPreMadePetalsPattern3);
-
-// - Not adders
-lineToggle.addEventListener('click', toggleLines);
-decorationMenuToggle.addEventListener('click', toggleDecorations);
 deleteBtn.addEventListener('click', deleteObj);
 copyBtn.addEventListener('click', copyObj);
-setBackgroundBtn.addEventListener('click', setBackground);
-setMainColorBtn.addEventListener('click', setMainColor);
 
 // - List div
 var objectList = document.getElementById('objects');
 
-//Event when inputs change
+// - Inputs
 var inputsDiv = document.getElementsByClassName('menuInput');
 for(var i = 0; i < inputsDiv.length; i++){
 	input = inputsDiv[i].getElementsByTagName('input')[0];
 	input.addEventListener('change', editObject);
 }
 
-// - Others inputs
+// - Background Options
+var setBackgroundBtn = document.getElementById('setBackground');
+var background_adapt = document.getElementById('background_adapt');
+var setMainColorBtn = document.getElementById('setMainColor');
+// - Background Listeners
 backgroundInput = document.getElementById('background');
 mainColorInput = document.getElementById('mainColor');
+setBackgroundBtn.addEventListener('click', setBackground);
+setMainColorBtn.addEventListener('click', setMainColor);
+
+// - Keys
+document.addEventListener('keypress', keyPressHandler);
+// - Mouse
+canvas.addEventListener('mousemove', mouseOverCanvas);
+canvas.addEventListener('click', removeChecks);
+
+
+// - Decorations toggle
+var decorationToggle = document.getElementsByClassName('menuToggle');
+for(var i = 0; i < decorationToggle.length; i++){
+	decorationToggle[i].addEventListener('click', toggleDecorations);
+}
+
+
 
 
 var mainColor = '#000000';
@@ -67,87 +54,203 @@ var background = false;
 var showLines = true;
 var objs = [];
 
-
-
-function lines(){
-	ctx.lineWidth = 1;
-	ctx.strokeStyle = mainColor;
-	ctx.beginPath();
-	// - PI / 2
-	ctx.moveTo(d*0.5,0)
-	ctx.lineTo(d*0.5,d);
-	ctx.moveTo(0,d*0.5)
-	ctx.lineTo(d,d*0.5);
-	// - PI / 4
-	ctx.moveTo(0,0)
-	ctx.lineTo(d,d);
-	ctx.moveTo(0,d)
-	ctx.lineTo(d,0);
-	ctx.stroke();
-	ctx.closePath();
-}
-
-
-// Save / Load //
-function save(){
-	var str = ''
-	for(var i = 0; i < objs.length; i++){
-		str += objs[i].repr();
-		str += '|';
+//_____________________
+// Key Press Handler
+//_____________________
+var changeType = 0;
+function keyPressHandler(e){
+	if(e.keyCode == 32){
+		if(showLines){
+			showLines = false;
+		}else{
+			showLines = true;
+		}
+		draw();
 	}
-	return str;
-//	var p = document.createElement('p');
-//	p.innerHTML = str;
-//	document.body.appendChild(p);
-}
-
-
-function load(str){
-	var objects = str.split('|').splice(0, str.split('|').length-1);
-	for(var i = 0; i < objects.length; i++){
-		var key_val = objects[i].split(';');
-		var keys = key_val[0].split(',').splice(0, key_val[0].split(',').length-1);
-		var values = key_val[1].split(',').splice(0, key_val[1].split(',').length-1);
-		var btn = document.getElementById(values[0]).click();
-		for(var j = 0; j < keys.length; j++){
-			if(values[j][0] == '#'){
-				objs[objs.length-1][keys[j]] = values[j];
+	
+	else if(e.keyCode == 97){
+		newObject = new Ring();
+		objs.push(newObject);
+		obj = document.createElement('p');
+		obj.innerHTML = newObject.tp + ' id=' + (objs.length-1);
+		obj.setAttribute('id', objs.length-1);
+		obj.setAttribute('class', 'off');	
+		obj.addEventListener('click', selectObject);
+		objectList.appendChild(obj);
+		draw();
+	}
+	// 1 
+	if(e.keyCode == 49){
+		// Get selected object
+		obj_on = document.getElementsByClassName('on');
+		if(obj_on.length){
+			obj_id = obj_on[0].getAttribute('id');
+			changeType %= 8;
+			if(changeType == 0){
+				objs[obj_id] = new Ring();
 			}
-			else{
-				objs[objs.length-1][keys[j]] = parseFloat(values[j]);
+			else if(changeType == 1){
+				objs[obj_id] = new RingPattern();
 			}
+			else if(changeType == 2){
+				objs[obj_id] = new LinesPattern();
+			}
+			else if(changeType == 3){
+				objs[obj_id] = new TrianglesPattern();
+			}
+			else if(changeType == 4){
+				objs[obj_id] = new SpyralsPattern();
+			}
+			else if(changeType == 5){
+				objs[obj_id] = new PreMadePetalsPattern();
+			}
+			else if(changeType == 6){
+				objs[obj_id] = new PreMadePetalsPattern2();
+			}
+			else if(changeType == 7){
+				objs[obj_id] = new PreMadePetalsPattern3();
+			}
+			obj_on[0].innerHTML = objs[obj_id].tp + ' id=' + obj_id;
+			changeType += 1;
+			draw();
+			obj_on[0].click();
 		}
 	}
-	draw();
 }
 
-
-//____________________________________________//
-// Toggle Lines/Decoration, Delete and copy  //
-//__________________________________________//
-
-// lineToggle eventListener
-function toggleLines(){
-	if(lineToggle.checked){
-		showLines = true;
+//___________________//
+// - Mouse Handler - //
+//___________________//
+function mouseOverCanvas(e) {
+	obj_on = document.getElementsByClassName('on');
+	if(obj_on.length){
+		obj_id = obj_on[0].getAttribute('id');
+		e = event || window.event;
+		var rect = canvas.getBoundingClientRect();
+		if(e.clientX && e.clientY){
+			checkBoxes = document.getElementsByClassName('mouse');
+			x = e.clientX - rect.left - canvasCenter;
+			y = e.clientY - rect.top - canvasCenter;
+			center = (x ** 2 + y ** 2)**0.5;
+			if(x < 0){
+				center *= -1;
+			}
+			for(var i = 0; i < checkBoxes.length; i++){
+				if(checkBoxes[i].checked){
+					varName = checkBoxes[i].parentNode.getAttribute('id');
+					//console.log(varName);
+					// - Lenghts
+					if(varName == 'center' || varName == 'radius' || varName == 'height' || varName == 'width' || varName == 'height' || varName == 'length'){
+						objs[obj_id][varName] = center;
+					}
+					// - Small Lengths
+					else if(varName == 'loops' || varName == 'start' || varName == 'stop' ||varName == 'circlesDistance' || varName == 'circlesRadius'  || varName == 'topCircleDistance' || varName == 'topCircleRadius'){
+						objs[obj_id][varName] = center / 4;
+					}
+					// - Angles
+					else if(varName == 'rotation' || varName == 'quantity'){
+						objs[obj_id][varName] = Math.acos(x/center) * (Math.PI / 2);
+					}
+					// - Small Angles
+					else{
+						objs[obj_id][varName] = Math.acos(x/center) / Math.PI;
+					}
+					
+					input = document.getElementById(varName).getElementsByTagName('input')[0].value = objs[obj_id][varName];
+				}
+			}
+		draw();
+		}
 	}
-	else{
-		showLines = false;
+}
+function removeChecks(){
+	checkBoxes = document.getElementsByClassName('mouse');
+	for(var i = 0; i < checkBoxes.length; i++){
+		if(checkBoxes[i].checked){
+			checkBoxes[i].checked = false;
+		}
 	}
-	draw();
 }
 
-// decorationMenuToggle eventListener
+//____________//
+// - Select - //
+//____________//
+function selectObject(){
+	// Deselect currently selected Object
+	var current = document.getElementsByClassName('on');
+	if(current.length){
+		current[0].setAttribute('class', 'off');
+	}
+	
+	// Select chosen object
+	this.setAttribute('class', 'on');
+	obj_id = this.getAttribute('id');
+	
+	// Displays menu if not on screen
+	if(menu.style.display == 'none' || menu.style.display == ''){
+		menu.style.display = 'block';
+	}
+	// Get object attributes and displays only needed inputs
+	keys = Object.keys(objs[obj_id]).splice(0, Object.keys(objs[obj_id]).length-2);
+	for(var i = 0; i < inputsDiv.length; i++){
+		var key = inputsDiv[i].getAttribute('id')
+		if(keys.includes(key)){
+			inputsDiv[i].style.display = 'block';
+			input = inputsDiv[i].getElementsByTagName('input')[0];
+			// Set objects value to needed input
+			input.value = objs[obj_id][key];
+		}
+		else{
+			inputsDiv[i].style.display = 'none';
+		}
+	}	
+}
+
+//____________//
+// - Edit -   //
+//____________//
+function editObject(){
+	// Get selected object
+	obj_on = document.getElementsByClassName('on');
+	if(obj_on.length){
+		obj_id = obj_on[0].getAttribute('id');
+		// Get attribute name to modify
+		key = this.parentNode.getAttribute('id');
+		// Parse if numeric value
+		if(this.type == 'number'){
+			objs[obj_id][key] = parseFloat(this.value)
+		}
+		else if(this.type == 'checkbox'){
+			key = this.parentNode.parentNode.getAttribute('id');
+			if(this.checked){
+				objs[obj_id][key] = 1;
+			}else{
+				objs[obj_id][key] = 0;
+			}
+		}
+		else{
+			objs[obj_id][key] = this.value;
+		}
+		draw();
+	}
+}
+
+//______________________________
+// - Show/Hide Decoration Menu
+//______________________________
+
 function toggleDecorations(){
+	decorationMenu = this.parentElement.parentElement.nextElementSibling;
 	if(this.checked){
-		document.getElementById('decorations').style.display='block';
+		decorationMenu.style.display='block';
 	}
 	else{
-		document.getElementById('decorations').style.display='none';
+		decorationMenu.style.display='none';
 	}
 }
 
-// delete eventListener
+
+// deleteBtn eventListener
 function deleteObj(){
 	var current = document.getElementsByClassName('on');
 	if(current.length){
@@ -185,6 +288,47 @@ function copyObj(){
 }
 
 
+//
+function setBackground(){
+	img = new Image();
+	img.src = backgroundInput.value;
+	img.onload = function(){
+		background = img;
+		draw();
+	}
+}
+
+
+function setMainColor(){
+	if(mainColorInput.value.length == 7 && mainColorInput.value[0] == '#'){
+		mainColor = mainColorInput.value;
+		for(var i = 0; i < objs.length; i++){
+			objs[i].lineColor = mainColor;
+		}
+	}
+}
+
+
+function lines(){
+	ctx.lineWidth = 1;
+	ctx.strokeStyle = mainColor;
+	ctx.beginPath();
+	// - PI / 2
+	ctx.moveTo(d*0.5,0)
+	ctx.lineTo(d*0.5,d);
+	ctx.moveTo(0,d*0.5)
+	ctx.lineTo(d,d*0.5);
+	// - PI / 4
+	ctx.moveTo(0,0)
+	ctx.lineTo(d,d);
+	ctx.moveTo(0,d)
+	ctx.lineTo(d,0);
+	ctx.stroke();
+	ctx.closePath();
+}
+
+
+
 
 //________________
 // - Classes
@@ -200,7 +344,7 @@ function Ring(){
 		ctx.beginPath();
 		ctx.lineWidth = this.lineWidth;
 		ctx.fillStyle = this.lineColor;
-		ctx.arc(canvasCenter,canvasCenter,this.radius,0,2*Math.PI);
+		ctx.arc(canvasCenter,canvasCenter,Math.abs(this.radius),0,2*Math.PI);
 		ctx.strokeStyle = this.lineColor;
 		if(this.fill){
 			ctx.fill();
@@ -257,7 +401,9 @@ function RingPattern(){
 		var gap = this.circlesGap * Math.PI;
 		var cmplt = this.completeness * Math.PI;
 		var radius2 = this.radius - this.circlesDistance;
-
+		if(gap == 0){
+			gap = 0.01;
+		}
 		for(var i = u - cmplt + gap*this.stop; i < u + cmplt-gap*this.start; i+=gap){
 			ctx.beginPath();
 			ctx.lineWidth = this.circlesLineWidth;
@@ -266,7 +412,7 @@ function RingPattern(){
 			
 			var xC = x + Math.cos(i) * radius2;
 			var yC = y + Math.sin(i) * radius2;
-			ctx.arc(xC, yC, this.circlesRadius, 0, Math.PI*2);
+			ctx.arc(xC, yC, Math.abs(this.circlesRadius), 0, Math.PI*2);
 			if(this.fillCircles){
 				ctx.fill();
 			}
@@ -292,7 +438,7 @@ function RingPattern(){
 			//
 			var x = Math.cos(i)*this.center+canvasCenter;
 			var y = Math.sin(i)*this.center+canvasCenter
-			ctx.arc(x, y, this.radius, u - cmplt, cmplt + u);	
+			ctx.arc(x, y, Math.abs(this.radius), u - cmplt, cmplt + u);	
 			//
 			if(this.fill){
 				ctx.fill();
@@ -319,7 +465,7 @@ function RingPattern(){
 				ctx.strokeStyle = this.lineColor;
 				var x = Math.cos(ii)*this.center+canvasCenter;
 				var y = Math.sin(ii)*this.center+canvasCenter
-				ctx.arc(x, y, this.radius, uu - cmplt, cmplt + uu);	
+				ctx.arc(x, y, Math.abs(this.radius), uu - cmplt, cmplt + uu);	
 				if(this.fill){
 				ctx.fill();
 				}
@@ -350,52 +496,8 @@ function RingPattern(){
 	}
 }
 
-						
-function PetalsPattern(){
-	this.tp = 'petalsPattern';
-	this.radius = 15;
-	this.center = 30;
-	this.quantity = 0.5;
-	this.completeness = 0.5;
-	this.orientation = 0;
-	this.proximity = 0;
-	// left side rotation
-	this.rotation1 = 0;
-	// right side rotation
-	this.rotation2 = 0;
-	this.lineWidth = 1;
-	this.lineColor = mainColor;
-	this.display = function(){
-		ctx.lineWidth = this.lineWidth;
-		ctx.strokeStyle = this.lineColor;
-		for(var i = this.orientation*Math.PI; i < Math.PI * 2+this.orientation*Math.PI; i+=(Math.PI*(1/8)) / this.quantity){
-			ctx.beginPath();
-			ctx.arc(Math.cos((this.proximity*Math.PI) + i)*this.center+canvasCenter, Math.sin((this.proximity*Math.PI) + i)*this.center+canvasCenter, this.radius, 
-					-Math.PI*this.completeness + (this.proximity*Math.PI) + i + (1.5+this.rotation1), Math.PI*this.completeness + (this.proximity*Math.PI) + i + (1.5+this.rotation1));	
-			ctx.stroke();
-			ctx.closePath();
-			ctx.beginPath();
-			ctx.arc(Math.cos(i - (this.proximity*Math.PI))*this.center+canvasCenter, Math.sin(i - (this.proximity*Math.PI))*this.center+canvasCenter, this.radius,
-					Math.PI*(1-this.completeness) + i-(this.proximity*Math.PI) + (1.5+this.rotation2), -Math.PI*(1-this.completeness) + i-(this.proximity*Math.PI) + (1.5+this.rotation2));
-			ctx.stroke();
-			ctx.closePath();
-		}
-	}
-	
-	this.repr = function(){
-		keys = Object.keys(this).splice(0, Object.keys(this).length-2);
-		keysStr = ''
-		valStr = '';
-		for(var i = 0; i < keys.length; i++){
-			keysStr += keys[i] + ',';
-			valStr += this[keys[i]] + ',';
-		}
-		str = keysStr + ';' + valStr;
-		return str;
-	}
-}
-
-					
+//___________________________________________________________________________________
+//___________________________________________________________________________________
 function LinesPattern(){
 	this.tp = 'linesPattern';
 	this.length = 10;
@@ -436,7 +538,8 @@ function LinesPattern(){
 	}
 }
 
-					
+//________________________________________________________________________________________________________________//
+//________________________________________________________________________________________________________________//
 function TrianglesPattern(){
 this.tp = 'trianglesPattern';
 	// Object
@@ -507,8 +610,8 @@ this.tp = 'trianglesPattern';
 		return str;
 	}
 }
-
-					
+//________________________________________________________________________________________________________________//
+//________________________________________________________________________________________________________________//
 function SpyralsPattern(){
 	this.tp = 'spyralsPattern';
 	this.center = 30;
@@ -590,13 +693,13 @@ function PreMadePetalsPattern(){
 			var x2 = Math.cos(u) * (this.height) + x;
 			var y2 = Math.sin(u) * (this.height) + y;
 			
-			ctx.arc(x, y, this.radius, 1.5*Math.PI-cmplt+u, 1.5*Math.PI+cmplt+u);
+			ctx.arc(x, y, Math.abs(this.radius), 1.5*Math.PI-cmplt+u, 1.5*Math.PI+cmplt+u);
 			ctx.lineTo(x2,y2);
 
 			var posX = Math.cos(Math.PI*0.5-cmplt+u) * this.radius + x;
 			var posY = Math.sin(Math.PI*0.5-cmplt+u) * this.radius + y;
 			ctx.moveTo(posX,posY);
-			ctx.arc(x, y, this.radius, Math.PI*0.5-cmplt+u, Math.PI*0.5+cmplt+u);
+			ctx.arc(x, y, Math.abs(this.radius), Math.PI*0.5-cmplt+u, Math.PI*0.5+cmplt+u);
 			ctx.moveTo(posX,posY);
 			ctx.lineTo(x2,y2);			
 			ctx.stroke();
@@ -618,7 +721,7 @@ function PreMadePetalsPattern(){
 				var x2 = Math.cos(uu) * (this.height) + x;
 				var y2 = Math.sin(uu) * (this.height) + y;
 				
-				ctx.arc(x, y, this.radius, 1.5*Math.PI-cmplt+uu, 1.5*Math.PI+cmplt+uu);
+				ctx.arc(x, y, Math.abs(this.radius), 1.5*Math.PI-cmplt+uu, 1.5*Math.PI+cmplt+uu);
 				ctx.lineTo(x2,y2);
 
 				var posX = Math.cos(Math.PI*0.5-cmplt+uu) * this.radius + x;
@@ -665,7 +768,7 @@ function PreMadePetalsPattern2(){
 	//_____________________
 	// - Decoration toggle
 	this.specularCopy = 0; // - 0/1 Activate specularCopy in this.display [no function]
-	this.circlesOnTheSides = 0; // - 0/1 Activate this.displayCisrclesOnTheSides() in this.display
+	this.circlesAround = 0; // - 0/1 Activate this.displayCisrclesAround() in this.display
 	this.topCircle = 0; // 0/1 Activate this.displayTopCircle() in this.display()
 	//________________________
 	// - Decoration
@@ -693,7 +796,7 @@ function PreMadePetalsPattern2(){
 		ctx.lineWidth = this.topCircleLineWidth
 		ctx.fillStyle = this.topCircleColor;
 		ctx.beginPath();
-		ctx.arc(xC+xSpace,yC+ySpace,this.topCircleRadius,0,Math.PI*2);
+		ctx.arc(xC+xSpace,yC+ySpace,Math.abs(this.topCircleRadius),0,Math.PI*2);
 		if(this.fillTopCircle){
 			ctx.fill();
 		}
@@ -704,19 +807,22 @@ function PreMadePetalsPattern2(){
 	}
 	//___________________________________________________________________
 	//___________________________________________________________________
-	this.displayCirclesOnTheSides = function(radius,xR,yR,xL,yL,u, angle){
+	this.displayCirclesAround = function(radius,xR,yR,xL,yL,u, angle){
 		var gap = this.circlesGap * Math.PI;
 		var cmplt = this.completeness * 2*Math.PI;
 		var circ = cmplt - angle - gap*this.start; // - Loop end
 		ctx.strokeStyle = this.circlesColor;
 		ctx.lineWidth = this.circlesLineWidth
 		ctx.fillStyle = this.circlesColor;
+		if(gap == 0){
+			gap = 0.01;
+		}
 		for(var i = gap*this.stop; i < circ; i+=gap){
 			ctx.beginPath();
 			// - Left circles center
 			var xC = xL + Math.cos(u-i-angle) * (radius-this.circlesDistance);
 			var yC = yL + Math.sin(u-i-angle) * (radius-this.circlesDistance);
-			ctx.arc(xC,yC,this.circlesRadius,0,Math.PI*2)
+			ctx.arc(xC,yC,Math.abs(this.circlesRadius),0,Math.PI*2)
 			if(this.fillCircles){
 				ctx.fill();
 			}
@@ -729,7 +835,7 @@ function PreMadePetalsPattern2(){
 			// - Right circles center
 			var xC = xR - Math.cos(Math.PI+angle+u+i) * (radius-this.circlesDistance);
 			var yC = yR - Math.sin(Math.PI+angle+u+i) * (radius-this.circlesDistance);
-			ctx.arc(xC,yC,this.circlesRadius,0,Math.PI*2)
+			ctx.arc(xC,yC,Math.abs(this.circlesRadius),0,Math.PI*2)
 			if(this.fillCircles){
 				ctx.fill();
 			}
@@ -778,13 +884,13 @@ function PreMadePetalsPattern2(){
 			// - Left point center of right arch (90° Left)
 			var xL = xQ - Math.cos(0.5*Math.PI+u) * this.width;
 			var yL = yQ - Math.sin(0.5*Math.PI+u) * this.width;
-			ctx.arc(xL,yL, radius, u+angle, u+cmplt);
+			ctx.arc(xL,yL, Math.abs(radius), u+angle, u+cmplt);
 			
 			// - Left arch bottom endline point
 			var xR2 = xR + Math.cos(u-cmplt)*radius;
 			var yR2 = yR + Math.sin(u-cmplt)*radius;
 			ctx.moveTo(xR2,yR2);
-			ctx.arc(xR,yR, radius, u-cmplt, u-angle);
+			ctx.arc(xR,yR, Math.abs(radius), u-cmplt, u-angle);
 			ctx.stroke();
 			ctx.closePath();
 			// - (xC;yC) (xQ;yQ) (xR;yR) is a right triangle
@@ -804,8 +910,8 @@ function PreMadePetalsPattern2(){
 			//____
 			// - Circles On The Sides
 			//____
-			if(this.circlesOnTheSides && this.circlesGap > 0){
-				this.displayCirclesOnTheSides(radius,xL,yL,xR,yR,u,angle);
+			if(this.circlesAround && this.circlesGap > 0){
+				this.displayCirclesAround(radius,xL,yL,xR,yR,u,angle);
 			} 
 			//_____
 			// - Top Circle
@@ -835,19 +941,19 @@ function PreMadePetalsPattern2(){
 				var xL = xQ - Math.cos(0.5*Math.PI+uu) * this.width;
 				var yL = yQ - Math.sin(0.5*Math.PI+uu) * this.width;
 				
-				ctx.arc(xL,yL, radius, uu+angle, uu+cmplt);
+				ctx.arc(xL,yL, Math.abs(radius), uu+angle, uu+cmplt);
 				
 				var xR2 = xR + Math.cos(uu-cmplt)*radius;
 				var yR2 = yR + Math.sin(uu-cmplt)*radius;
 				ctx.moveTo(xR2,yR2);
-				ctx.arc(xR,yR, radius, uu-cmplt, uu-angle);
+				ctx.arc(xR,yR, Math.abs(radius), uu-cmplt, uu-angle);
 				ctx.stroke();
 				ctx.closePath();
 				//______
 				//______
 				//______
-				if(this.circlesOnTheSides && this.circlesGap > 0){
-					this.displayCirclesOnTheSides(radius,xL,yL,xR,yR,uu,angle);
+				if(this.circlesAround && this.circlesGap > 0){
+					this.displayCirclesAround(radius,xL,yL,xR,yR,uu,angle);
 				}
 				//______
 				//______
@@ -908,7 +1014,7 @@ function PreMadePetalsPattern3(){
 			var Ay = yC - Math.sin(u) * this.height;
 			ctx.moveTo(Ax,Ay)
 			
-			ctx.arc(xC,yC, this.radius, u-(Math.PI*this.completeness), u + (Math.PI*this.completeness));
+			ctx.arc(xC,yC, Math.abs(this.radius), u-(Math.PI*this.completeness), u + (Math.PI*this.completeness));
 			
 			var Bx = xC - Math.cos(u + (Math.PI*this.completeness)) * this.radius;
 			var By = yC - Math.sin(u + (Math.PI*this.completeness)) * this.radius;
@@ -931,7 +1037,7 @@ function PreMadePetalsPattern3(){
 				var Ay = yC - Math.sin(uu) * this.height;
 				ctx.moveTo(Ax,Ay)
 				
-				ctx.arc(xC,yC, this.radius, uu-(Math.PI*this.completeness), uu + (Math.PI*this.completeness));
+				ctx.arc(xC,yC, Math.abs(this.radius), uu-(Math.PI*this.completeness), uu + (Math.PI*this.completeness));
 				
 				var Bx = xC - Math.cos(uu + (Math.PI*this.completeness)) * this.radius;
 				var By = yC - Math.sin(uu + (Math.PI*this.completeness)) * this.radius;
@@ -957,209 +1063,10 @@ function PreMadePetalsPattern3(){
 
 //________________________________________________________________________________________________________________//
 
-//____________________________//
-// - Adders EnventListeners - //
-//____________________________//
-function addRing(){
-	circle = new Ring();
-	objs.push(circle);
-	obj = document.createElement('p');
-	obj.innerHTML = 'Ring id=' + (objs.length-1);
-	obj.setAttribute('id', objs.length-1);
-	obj.setAttribute('class', 0);
-	obj.addEventListener('click', selectObject);
-	objectList.appendChild(obj);
-	draw()
-}
 
-
-function addRingPattern(){
-	circlePattern = new RingPattern();
-	objs.push(circlePattern);
-	obj = document.createElement('p');
-	obj.innerHTML = 'Ring Pattern id=' + (objs.length-1);
-	obj.setAttribute('id', objs.length-1);
-	obj.setAttribute('class', 'off');	
-	obj.addEventListener('click', selectObject);
-	objectList.appendChild(obj);
-	draw();
-}
-
-
-function addPetalsPattern(){
-	petalsPattern = new PetalsPattern();
-	objs.push(petalsPattern);
-	obj = document.createElement('p');
-	obj.innerHTML = 'Petals Pattern id=' + (objs.length-1);
-	obj.setAttribute('id', objs.length-1);
-	obj.setAttribute('class', 'off');	
-	obj.addEventListener('click', selectObject);
-	objectList.appendChild(obj);
-	draw();
-}
-
-
-function addLinesPattern(){
-	linesPattern = new LinesPattern();
-	objs.push(linesPattern);
-	obj = document.createElement('p');
-	obj.innerHTML = 'Lines Pattern id=' + (objs.length-1);
-	obj.setAttribute('id', objs.length-1);
-	obj.setAttribute('class', 'off');	
-	obj.addEventListener('click', selectObject);
-	objectList.appendChild(obj);
-	draw();
-}
-
-
-function addTrianglesPattern(){
-	trianglesPattern = new TrianglesPattern();
-	objs.push(trianglesPattern);
-	obj = document.createElement('p');
-	obj.innerHTML = 'Triangles Pattern id=' + (objs.length-1);
-	obj.setAttribute('id', objs.length-1);
-	obj.setAttribute('class', 'off');	
-	obj.addEventListener('click', selectObject);
-	objectList.appendChild(obj);
-	draw();
-}
-
-
-
-function addSpyralsPattern(){
-	spyralsPattern = new SpyralsPattern();
-	objs.push(spyralsPattern);
-	obj = document.createElement('p');
-	obj.innerHTML = 'Spyrals Pattern id=' + (objs.length-1);
-	obj.setAttribute('id', objs.length-1);
-	obj.setAttribute('class', 'off');	
-	obj.addEventListener('click', selectObject);
-	objectList.appendChild(obj);
-	draw();
-}
-
-
-function addPreMadePetalsPattern(){
-	preMadePetals = new PreMadePetalsPattern();
-	objs.push(preMadePetals);
-	obj = document.createElement('p');
-	obj.innerHTML = 'Premade petals pattern1 id=' + (objs.length-1);
-	obj.setAttribute('id', objs.length-1);
-	obj.setAttribute('class', 'off');	
-	obj.addEventListener('click', selectObject);
-	objectList.appendChild(obj);
-	draw();
-}
-
-
-function addPreMadePetalsPattern2(){
-	preMadePetalsPattern = new PreMadePetalsPattern2();
-	objs.push(preMadePetalsPattern);
-	obj = document.createElement('p');
-	obj.innerHTML = 'Premade petals pattern 2 id=' + (objs.length-1);
-	obj.setAttribute('id', objs.length-1);
-	obj.setAttribute('class', 'off');	
-	obj.addEventListener('click', selectObject);
-	objectList.appendChild(obj);
-	draw();
-}
-
-
-function addPreMadePetalsPattern3(){
-	preMadePetalsPattern = new PreMadePetalsPattern3();
-	objs.push(preMadePetalsPattern);
-	obj = document.createElement('p');
-	obj.innerHTML = 'Premade petals pattern 3 id=' + (objs.length-1);
-	obj.setAttribute('id', objs.length-1);
-	obj.setAttribute('class', 'off');	
-	obj.addEventListener('click', selectObject);
-	objectList.appendChild(obj);
-	draw();
-}
-
-//________________________________________________________________________________________________________________//
-
-//________________
-// - Select
-//________________
-function selectObject(){
-	// Deselect currently selected Object
-	var current = document.getElementsByClassName('on');
-	if(current.length){
-		current[0].setAttribute('class', 'off');
-	}
-	
-	// Select chosen object
-	this.setAttribute('class', 'on');
-	obj_id = this.getAttribute('id');
-	// Change title
-	var title = document.getElementById('title');
-	title.innerHTML = 'Edit ' + objs[obj_id].tp
-	// Displays menu if not on screen
-	if(menu.style.display == 'none' || menu.style.display == ''){
-		menu.style.display = 'block';
-	}
-	// Get object attributes and displays only needed inputs
-	keys = Object.keys(objs[obj_id]).splice(0, Object.keys(objs[obj_id]).length-2);
-	for(var i = 0; i < inputsDiv.length; i++){
-		var key = inputsDiv[i].getAttribute('id')
-		if(keys.includes(key)){
-			inputsDiv[i].style.display = 'block';
-			input = inputsDiv[i].getElementsByTagName('input')[0];
-			// Set objects value to needed input
-			input.value = objs[obj_id][key];
-		}
-		else{
-			inputsDiv[i].style.display = 'none';
-		}
-	}	
-}
-
-
-//____________//
-// - Edit -   //
-//____________//
-function editObject(){
-	// Get selected object
-	obj_on = document.getElementsByClassName('on');
-	if(obj_on.length){
-		obj_id = obj_on[0].getAttribute('id');
-		// Get attribute name to modify
-		key = this.parentNode.getAttribute('id');
-		// Parse if numeric value
-		if(this.type == 'number'){
-			objs[obj_id][key] = parseFloat(this.value)
-		}
-		else{
-			objs[obj_id][key] = this.value;
-		}
-		draw();
-	}
-}
-
-
-//
-//
-//
-function setBackground(){
-	img = new Image();
-	img.src = backgroundInput.value;
-	img.onload = function(){
-		background = img;
-		draw();
-	}
-}
-
-function setMainColor(){
-	if(mainColorInput.value.length == 7 && mainColorInput.value[0] == '#'){
-		mainColor = mainColorInput.value;
-		for(var i = 0; i < objs.length; i++){
-			objs[i].lineColor = mainColor;
-		}
-	}
-}
-
-
+//__________//
+// - Draw - //
+//__________//
 function draw(){
 	ctx.clearRect(0,0,d,d);
 	if(background){
@@ -1177,6 +1084,3 @@ function draw(){
 		objs[i].display();
 	}
 }
-
-
-draw();
