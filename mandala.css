@@ -123,3 +123,11 @@ input:checked + .slider:before {
 ul {
 	list-style-type: none;
 }
+
+a{
+	color: #ffffff;
+}
+
+a:hover{
+	color: #aaffff;
+}
